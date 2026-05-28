@@ -191,7 +191,10 @@ if not os.path.isdir(REPO_DIR):
     subprocess.run(["git", "clone", "--depth", "1", REPO_URL, REPO_DIR], check=True)
 os.chdir(REPO_DIR)
 sys.path.insert(0, os.getcwd())   # make `import src...` work in this kernel
-subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"], check=False)
+# IMPORTANT: install ONLY the missing extras — do NOT reinstall requirements.txt
+# here, or you'll overwrite Kaggle's GPU-matched TensorFlow (2.19) with 2.21 and
+# break GPU detection. The project runs on the host's Keras-3 TensorFlow.
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements-notebook.txt"], check=False)
 print("cwd:", os.getcwd())
 assert os.path.isdir("src"), "repo not cloned correctly — is Internet enabled?"
 '''
@@ -246,7 +249,9 @@ if not os.path.isdir(REPO_DIR):
     subprocess.run(["git", "clone", "--depth", "1", REPO_URL, REPO_DIR], check=True)
 os.chdir(REPO_DIR)
 sys.path.insert(0, os.getcwd())   # make `import src...` work in this kernel
-subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"], check=False)
+# Install ONLY the missing extras — reusing Colab's GPU-matched TensorFlow rather
+# than reinstalling the fully-pinned requirements.txt (which would clobber it).
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements-notebook.txt"], check=False)
 print("cwd:", os.getcwd())
 assert os.path.isdir("src"), "repo not cloned correctly — check connectivity."
 '''

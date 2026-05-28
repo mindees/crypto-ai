@@ -1,0 +1,14 @@
+# Extras for hosted notebooks (Kaggle / Colab).
+#
+# These platforms ship a GPU-matched TensorFlow plus numpy/pandas/pyarrow/
+# scikit-learn/matplotlib already. Installing the fully-pinned requirements.txt
+# there OVERWRITES the host TensorFlow (e.g. Kaggle's 2.19 -> 2.21) and can
+# break GPU detection + the bundled tf-keras / tensorflow-text / TFDF.
+#
+# So on hosted notebooks we install ONLY the project-specific extras the host
+# usually lacks, intentionally UNPINNED so pip reuses the host's stack.
+# The project's code runs on Keras 3 (TF >= 2.16), which Kaggle/Colab provide.
+ccxt
+fredapi
+pandas-ta-classic
+yfinance
