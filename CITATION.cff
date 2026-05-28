@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "crypto-ai: BTC/ETH multi-task market-intelligence pipeline"
+message: "If you use this software, please cite it using these metadata."
+type: software
+authors:
+  - name: "mindees"
+    website: "https://github.com/mindees"
+repository-code: "https://github.com/mindees/crypto-ai"
+url: "https://github.com/mindees/crypto-ai"
+abstract: >-
+  A reproducible, decision-support machine-learning pipeline for BTC and ETH.
+  It ingests the deepest free, verifiable historical data (Binance bulk,
+  derivatives, on-chain, sentiment, macro), engineers strictly causal features,
+  and trains a multi-timeframe, multi-task TensorFlow model (direction, regime,
+  cycle, trade-quality). It validates with purged + embargoed walk-forward
+  splits, backtests with realistic fees and slippage against honest baselines,
+  and serves predictions via FastAPI. It is decision-support only and not
+  financial advice.
+keywords:
+  - machine-learning
+  - time-series
+  - transformer
+  - cryptocurrency
+  - quantitative-finance
+  - backtesting
+  - tensorflow
+license: MIT
+version: 0.1.0
+date-released: "2026-05-28"

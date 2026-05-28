@@ -6,11 +6,13 @@
 
 *Free data in. Causal features. Honest baselines. A probabilistic decision-support model out.*
 
+[![CI](https://github.com/mindees/crypto-ai/actions/workflows/smoke_tests.yml/badge.svg)](https://github.com/mindees/crypto-ai/actions/workflows/smoke_tests.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![tensorflow](https://img.shields.io/badge/tensorflow-2.21-orange.svg)](https://www.tensorflow.org/)
 [![tests](https://img.shields.io/badge/tests-88%20passing-brightgreen.svg)](#testing)
 [![license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](#license)
 [![status](https://img.shields.io/badge/build-8%2F8%20phases%20complete-success.svg)](#build-phases)
+[![stars](https://img.shields.io/github/stars/mindees/crypto-ai?style=social)](https://github.com/mindees/crypto-ai/stargazers)
 
 **Repository:** <https://github.com/mindees/crypto-ai>
 
