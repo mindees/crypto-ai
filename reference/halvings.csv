@@ -1,0 +1,6 @@
+halving_number,date_utc,block_height,block_reward_btc_before,block_reward_btc_after,notes
+1,2012-11-28,210000,50,25,first halving
+2,2016-07-09,420000,25,12.5,second halving
+3,2020-05-11,630000,12.5,6.25,third halving
+4,2024-04-19,840000,6.25,3.125,fourth halving
+5,2028-04-01,1050000,3.125,1.5625,projected — date is approximate

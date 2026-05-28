@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "models": [
+    {
+      "model_id": "20260526T113625Z",
+      "created_at_utc": "2026-05-28T08:23:37.338789+00:00",
+      "status": "candidate",
+      "artifact_path": "artifacts/runs/20260526T113625Z",
+      "dataset_manifest_hash": "a7aab2a346a3bdc2",
+      "feature_schema_hash": "a7aab2a346a3bdc2",
+      "label_config_hash": "7b8ab150d7a1b016",
+      "git_sha": "ref: refs/he",
+      "metrics": {
+        "direction_macro_f1": 0.1467505246400833,
+        "trade_quality_auc": 0.366123229265213,
+        "backtest_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "expectancy_r": 0.0
+      },
+      "promotion_decision": "not_evaluated",
+      "notes": ""
+    },
+    {
+      "model_id": "20260526T114437Z_plantguard",
+      "created_at_utc": "2026-05-28T08:23:37.450078+00:00",
+      "status": "candidate",
+      "artifact_path": "artifacts/runs/20260526T114437Z_plantguard",
+      "dataset_manifest_hash": "a7aab2a346a3bdc2",
+      "feature_schema_hash": "a7aab2a346a3bdc2",
+      "label_config_hash": "7b8ab150d7a1b016",
+      "git_sha": "ref: refs/he",
+      "metrics": {
+        "direction_macro_f1": 0.1467505246400833,
+        "trade_quality_auc": 0.4784470796585083,
+        "backtest_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "expectancy_r": 0.0
+      },
+      "promotion_decision": "not_evaluated",
+      "notes": ""
+    },
+    {
+      "model_id": "20260526T115045Z_plantguard",
+      "created_at_utc": "2026-05-28T08:23:37.506731+00:00",
+      "status": "candidate",
+      "artifact_path": "artifacts/runs/20260526T115045Z_plantguard",
+      "dataset_manifest_hash": "a7aab2a346a3bdc2",
+      "feature_schema_hash": "a7aab2a346a3bdc2",
+      "label_config_hash": "7b8ab150d7a1b016",
+      "git_sha": "ref: refs/he",
+      "metrics": {
+        "direction_macro_f1": 0.1467505246400833,
+        "trade_quality_auc": 0.4784470796585083,
+        "backtest_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "expectancy_r": 0.0
+      },
+      "promotion_decision": "not_evaluated",
+      "notes": ""
+    },
+    {
+      "model_id": "20260526T115429Z_plantguard",
+      "created_at_utc": "2026-05-28T08:23:37.551899+00:00",
+      "status": "candidate",
+      "artifact_path": "artifacts/runs/20260526T115429Z_plantguard",
+      "dataset_manifest_hash": "a7aab2a346a3bdc2",
+      "feature_schema_hash": "a7aab2a346a3bdc2",
+      "label_config_hash": "7b8ab150d7a1b016",
+      "git_sha": "ref: refs/he",
+      "metrics": {
+        "direction_macro_f1": 0.1467505246400833,
+        "trade_quality_auc": 0.4784470796585083,
+        "backtest_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "expectancy_r": 0.0
+      },
+      "promotion_decision": "not_evaluated",
+      "notes": ""
+    }
+  ]
+}

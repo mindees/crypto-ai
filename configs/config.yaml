@@ -1,0 +1,331 @@
+# =============================================================================
+# BTC/ETH Multi-Task Market Model — main config (Phase 0 scaffold)
+# All paths are repo-relative. Times are UTC.
+# =============================================================================
+
+project:
+  name: btc_eth_multitask_market_model
+  timezone: UTC
+  seed: 42
+
+assets:
+  - BTCUSDT
+  - ETHUSDT
+
+market_types:
+  - spot
+  - futures_um_perpetual
+
+timeframes:
+  raw:
+    - 1m
+    - 3m
+    - 5m
+    - 15m
+    - 30m
+    - 1h
+    - 2h
+    - 4h
+    - 6h
+    - 8h
+    - 12h
+    - 1d
+    - 3d
+    - 1w
+    - 1mo
+  train_default:
+    - 15m
+    - 1h
+    - 4h
+    - 1d
+  cycle_context:
+    - 1w
+    - 1mo
+
+sources:
+  enable_paid_sources: false
+  enable_fred: false
+  enable_etherscan: false
+  enable_live_stream_storage: false
+  enable_coingecko: true
+  enable_fear_greed: true
+
+storage:
+  commit_large_data_to_git: false
+  kaggle_dataset_slug: null
+  local_data_dir: data
+
+features:
+  max_features_after_selection: 120
+  min_non_null_ratio: 0.85
+  max_pairwise_corr: 0.95
+  variance_threshold: 0.000001
+  mutual_info_top_k: 160
+  permutation_importance_top_k: 140
+  final_top_k: 120
+  always_keep:
+    - close
+    - volume
+    - returns_1
+    - atr
+    - rsi_14
+    - macd_hist
+    - ema_stack_score
+    - realized_volatility
+    - funding_rate
+    - open_interest_change
+    - fear_greed
+    - btc_dominance
+    - cycle_months_since_halving
+
+labels:
+  triple_barrier:
+    15m:
+      atr_multiple: 1.5
+      vertical_barrier_bars: 32
+    1h:
+      atr_multiple: 1.8
+      vertical_barrier_bars: 48
+    4h:
+      atr_multiple: 2.0
+      vertical_barrier_bars: 42
+    1d:
+      atr_multiple: 2.5
+      vertical_barrier_bars: 30
+
+class_imbalance:
+  use_class_weights: true
+  class_weight_method: inverse_sqrt_frequency
+  use_focal_loss: false
+  focal_gamma: 2.0
+  tune_decision_thresholds: true
+  threshold_metric: macro_f1
+  min_precision_per_trade_class: 0.45
+
+validation:
+  method: purged_embargoed_walk_forward
+  embargo_bars: 10
+  min_train_period_days: 365
+  validation_period_days: 90
+  test_period_days: 90
+  num_walk_forward_splits: 5
+
+model:
+  architecture: mtf_transformer_attention
+  use_multi_timeframe_fusion: true
+  alternative_architectures:
+    - single_timeframe_transformer
+    - tcn_attention
+    - lstm_gru_attention
+  mixed_precision: true
+  use_multi_gpu_if_available: true
+  sequence_length:
+    15m: 128
+    1h: 128
+    4h: 96
+    1d: 90
+  hidden_size: 128
+  transformer:
+    num_layers: 3
+    num_heads: 4
+    ff_dim: 256
+    dropout: 0.15
+    attention_dropout: 0.10
+  lstm_gru:
+    lstm_units: 128
+    gru_units: 64
+    dropout: 0.20
+  tcn:
+    filters: 96
+    kernel_size: 3
+    dilation_rates: [1, 2, 4, 8, 16]
+    dropout: 0.15
+  tabular_branch:
+    dense_units: [128, 64]
+    dropout: 0.15
+  fusion:
+    method: cross_timeframe_attention
+    timeframe_embedding_dim: 16
+    asset_embedding_dim: 8
+  heads:
+    direction:
+      classes: [down, sideways, up]
+      dense_units: [128, 64]
+      dropout: 0.15
+      loss_weight: 1.0
+    regime:
+      classes:
+        - trending_up
+        - trending_down
+        - ranging_low_vol
+        - ranging_high_vol
+        - breakout
+        - capitulation
+      dense_units: [96, 48]
+      dropout: 0.15
+      loss_weight: 0.5
+    cycle:
+      classes: [accumulation, bull, distribution, bear]
+      dense_units: [64, 32]
+      dropout: 0.10
+      loss_weight: 0.25
+    trade_quality:
+      type: binary
+      dense_units: [64, 32]
+      dropout: 0.15
+      loss_weight: 0.75
+  optimizer:
+    name: AdamW
+    learning_rate: 0.0003
+    weight_decay: 0.0001
+    clipnorm: 1.0
+  lr_schedule:
+    name: cosine_decay_with_warmup
+    warmup_epochs: 3
+    min_lr: 0.00001
+  batch_size:
+    default: 256
+    single_t4: 512
+    dual_t4: 1024
+    cpu_smoke: 32
+  epochs: 60
+  early_stopping:
+    monitor: val_direction_macro_f1
+    mode: max
+    patience: 8
+    min_delta: 0.002
+    restore_best_weights: true
+  checkpoint:
+    save_best_only: true
+    monitor: val_direction_macro_f1
+    mode: max
+
+pretraining:
+  enabled: true
+  method: masked_window_modeling
+  epochs: 10
+  learning_rate: 0.0005
+  mask_ratio: 0.15
+  save_encoder: true
+
+plantguard_style_training:
+  enabled: true
+  phase1:
+    name: supervised_head_warmup
+    freeze_pretrained_encoder_if_available: true
+    epochs: 10
+    learning_rate: 0.001
+    monitor: val_direction_macro_f1
+    patience: 5
+    reduce_lr_factor: 0.5
+    reduce_lr_patience: 3
+  phase2:
+    name: fine_tune_last_encoder_blocks
+    unfreeze_last_n_blocks: 1
+    epochs: 25
+    learning_rate: 0.00003
+    monitor: val_direction_macro_f1
+    patience: 8
+    reduce_lr_factor: 0.3
+    reduce_lr_patience: 4
+  artifacts:
+    save_training_curves: true
+    save_confusion_matrices: true
+    save_classification_report: true
+    save_prediction_demo: true
+    save_reload_test: true
+
+backtest:
+  engine: custom_event_driven
+  optional_vectorbt_comparison: true
+  initial_equity: 10000
+  fee_bps_per_side: 4
+  slippage:
+    model: atr_and_volume
+    min_bps_per_side: 2
+    max_bps_per_side: 15
+    atr_fraction: 0.02
+  futures_margin:
+    enabled: false
+    default_leverage: 1
+    max_leverage_allowed: 3
+    margin_mode: isolated
+    maintenance_margin_rate: 0.005
+    liquidation_buffer_pct_min: 5.0
+    include_funding_fees: true
+    funding_interval_hours: 8
+    reject_trade_if_liquidation_buffer_below_pct: 5.0
+  min_rr: 2.0
+  risk_per_trade_pct: 1.0
+  max_risk_per_trade_pct: 2.0
+  max_daily_loss_pct: 4.0
+  max_open_positions: 1
+  confidence_thresholds:
+    long: 0.58
+    short: 0.58
+    no_trade_below: 0.58
+  exits:
+    use_triple_barrier: true
+    stop_atr_multiple: 1.5
+    tp1_rr: 1.0
+    tp2_rr: 2.0
+    tp3_rr: 3.0
+    partials:
+      tp1_close_pct: 0.33
+      tp2_close_pct: 0.33
+      tp3_close_pct: 0.34
+    move_sl_to_breakeven_after_tp1: true
+    move_sl_to_tp1_after_tp2: true
+    max_holding_bars:
+      15m: 32
+      1h: 48
+      4h: 42
+      1d: 30
+
+retraining:
+  schedule: weekly_manual_gpu
+  daily_data_refresh: true
+  min_new_bars_before_retrain:
+    15m: 2000
+    1h: 500
+    4h: 150
+    1d: 30
+  trigger_if:
+    validation_direction_macro_f1_drop_abs: 0.05
+    psi_feature_drift_above: 0.25
+    live_trade_expectancy_below_zero_over_trades: 30
+    calibration_ece_above: 0.12
+  drift_visualization:
+    enabled: true
+    top_n_features: 30
+    save_static_charts: true
+    save_html_dashboard: true
+  shadow_ab_testing:
+    enabled: true
+    min_shadow_days: 14
+    min_shadow_signals: 30
+    compare_paper_trades: true
+    candidate_traffic_pct: 0
+    production_remains_default: true
+  promotion:
+    require_beats_current_production: true
+    min_direction_macro_f1_improvement: 0.01
+    min_backtest_profit_factor: 1.10
+    max_drawdown_not_worse_by_pct: 10
+    require_positive_expectancy: true
+
+serving:
+  enable_fastapi: true
+  host: 0.0.0.0
+  port: 8000
+  prediction_refresh_minutes: 15
+  alerting:
+    enable_telegram: false
+    enable_discord: false
+    enable_email: false
+    min_signal_confidence: 0.65
+    min_trade_quality_probability: 0.60
+    cooldown_minutes: 60
+    include_scorecard: true
+    include_risk_warning: true
+    include_model_id: true

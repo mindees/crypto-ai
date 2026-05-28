@@ -1,0 +1,226 @@
+schema_version: 1
+generated_at_utc: '2026-05-28T08:41:41.599551+00:00'
+sources:
+- source: binance_public_data
+  market_type: spot
+  symbol: BTCUSDT
+  timeframe: 1h
+  first_open_time_utc: '2024-01-01T00:00:00+00:00'
+  last_open_time_utc: '2026-05-25T23:00:00+00:00'
+  rows: 21024
+  files_processed: 53
+  checksum_verified: 53
+  checksum_absent: 0
+  missing_candle_estimate: 0
+- source: binance_public_data
+  market_type: spot
+  symbol: BTCUSDT
+  timeframe: 4h
+  first_open_time_utc: '2024-01-01T00:00:00+00:00'
+  last_open_time_utc: '2026-05-25T20:00:00+00:00'
+  rows: 5256
+  files_processed: 53
+  checksum_verified: 53
+  checksum_absent: 0
+  missing_candle_estimate: 0
+- source: binance_public_data
+  market_type: spot
+  symbol: ETHUSDT
+  timeframe: 1h
+  first_open_time_utc: '2024-01-01T00:00:00+00:00'
+  last_open_time_utc: '2026-05-25T23:00:00+00:00'
+  rows: 21024
+  files_processed: 53
+  checksum_verified: 53
+  checksum_absent: 0
+  missing_candle_estimate: 0
+- source: binance_public_data
+  market_type: spot
+  symbol: ETHUSDT
+  timeframe: 4h
+  first_open_time_utc: '2024-01-01T00:00:00+00:00'
+  last_open_time_utc: '2026-05-25T20:00:00+00:00'
+  rows: 5256
+  files_processed: 53
+  checksum_verified: 53
+  checksum_absent: 0
+  missing_candle_estimate: 0
+- name: fear_greed_index
+  source: alternative.me
+  available: true
+  first_timestamp_utc: '2018-02-01T00:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T00:00:00+00:00'
+  row_count: 3035
+  metric_columns:
+  - fear_greed_value
+  - fear_greed_classification
+  known_limitations:
+  - Mostly Bitcoin/crypto-market sentiment, not ETH-specific.
+  - Daily resolution only; published once per day around 00:00 UTC.
+  - 'First available value: 2018-02-01.'
+  reason: null
+  parquet_path: null
+- name: coingecko_global
+  source: coingecko.com (free)
+  available: true
+  first_timestamp_utc: '2026-05-28T08:41:24+00:00'
+  last_timestamp_utc: '2026-05-28T08:41:24+00:00'
+  row_count: 1
+  metric_columns:
+  - btc_dominance_pct
+  - eth_dominance_pct
+  - total_market_cap_usd
+  - total_volume_usd_24h
+  known_limitations:
+  - Free tier rate limit (~30 req/min); 429s are auto-retried with backoff.
+  - "/global endpoint is a snapshot, not a time series \u2014 daily delta pipeline\
+    \ appends one row per run."
+  - CoinGecko has occasional schema changes; we ignore unknown keys.
+  reason: null
+  parquet_path: null
+- name: deriv_BTCUSDT_funding_rate
+  source: binance fapi:fundingRate:BTCUSDT
+  available: true
+  first_timestamp_utc: '2019-09-20T00:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 7328
+  metric_columns:
+  - funding_rate
+  - mark_price
+  known_limitations:
+  - Funding events every 8h. Paginated through full history; capped at 1000 events
+    per request. Earlier than symbol launch returns empty.
+  reason: null
+  parquet_path: null
+- name: deriv_BTCUSDT_open_interest_hist
+  source: binance fapi:/futures/data/openInterestHist:BTCUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - open_interest
+  - open_interest_usd
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_BTCUSDT_global_long_short_ratio
+  source: binance fapi:/futures/data/globalLongShortAccountRatio:BTCUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - global_long_account_pct
+  - global_short_account_pct
+  - global_long_short_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_BTCUSDT_top_trader_position_ratio
+  source: binance fapi:/futures/data/topLongShortPositionRatio:BTCUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - top_long_position_pct
+  - top_short_position_pct
+  - top_long_short_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_BTCUSDT_taker_long_short_volume
+  source: binance fapi:/futures/data/takerlongshortRatio:BTCUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T12:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T07:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - taker_buy_volume
+  - taker_sell_volume
+  - taker_buy_sell_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_ETHUSDT_funding_rate
+  source: binance fapi:fundingRate:ETHUSDT
+  available: true
+  first_timestamp_utc: '2019-11-27T08:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 7123
+  metric_columns:
+  - funding_rate
+  - mark_price
+  known_limitations:
+  - Funding events every 8h. Paginated through full history; capped at 1000 events
+    per request. Earlier than symbol launch returns empty.
+  reason: null
+  parquet_path: null
+- name: deriv_ETHUSDT_open_interest_hist
+  source: binance fapi:/futures/data/openInterestHist:ETHUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - open_interest
+  - open_interest_usd
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_ETHUSDT_global_long_short_ratio
+  source: binance fapi:/futures/data/globalLongShortAccountRatio:ETHUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - global_long_account_pct
+  - global_short_account_pct
+  - global_long_short_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_ETHUSDT_top_trader_position_ratio
+  source: binance fapi:/futures/data/topLongShortPositionRatio:ETHUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T13:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T08:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - top_long_position_pct
+  - top_short_position_pct
+  - top_long_short_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null
+- name: deriv_ETHUSDT_taker_long_short_volume
+  source: binance fapi:/futures/data/takerlongshortRatio:ETHUSDT
+  available: true
+  first_timestamp_utc: '2026-05-07T12:00:00+00:00'
+  last_timestamp_utc: '2026-05-28T07:00:00+00:00'
+  row_count: 500
+  metric_columns:
+  - taker_buy_volume
+  - taker_sell_volume
+  - taker_buy_sell_ratio
+  known_limitations:
+  - REST endpoint is recent-only (~30 days at hourly resolution). Older data is not
+    retrievable for free.
+  reason: null
+  parquet_path: null

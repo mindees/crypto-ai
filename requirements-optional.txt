@@ -1,0 +1,20 @@
+# Optional dependencies — install only if needed and supported on your platform.
+# The codebase MUST work without these (per spec).
+
+# TA-Lib: native indicator library.
+# On Windows, install a precompiled wheel before pip-installing this:
+#   pip install ta-lib   (requires the TA-Lib C library or a precompiled wheel)
+# If installation fails, the codebase falls back to pandas-ta-classic automatically.
+TA-Lib==0.4.32
+
+# Polars: faster dataframe ops for large parquet datasets
+polars==1.18.0
+
+# vectorbt: optional backtesting comparison (custom event-driven backtester is the primary)
+# vectorbt==0.26.2
+
+# DVC: optional data versioning. Only enable if a free remote is configured.
+# dvc==3.59.0
+
+# SHAP: optional feature importance during feature selection
+# shap==0.46.0

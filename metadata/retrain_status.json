@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "last_check_utc": "2026-05-28T08:41:42.608676+00:00",
+  "retrain_recommended": true,
+  "reasons": [
+    "BTCUSDT/1h: 37 feature(s) with PSI>0.25 (top: ema_200=12.450)",
+    "BTCUSDT/4h: 36 feature(s) with PSI>0.25 (top: realized_volatility_100=12.434)",
+    "ETHUSDT/1h: 37 feature(s) with PSI>0.25 (top: ema_200=12.450)",
+    "ETHUSDT/4h: 38 feature(s) with PSI>0.25 (top: realized_volatility_50=12.434)"
+  ],
+  "psi_threshold": 0.25,
+  "drift_findings": {
+    "BTCUSDT/1h": [
+      {
+        "feature": "ema_200",
+        "psi": 12.4498,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_200",
+        "psi": 12.4498,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_120",
+        "psi": 12.4443,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_50",
+        "psi": 12.4418,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_50",
+        "psi": 12.4418,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_upper",
+        "psi": 12.4411,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_mid",
+        "psi": 12.4411,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_21",
+        "psi": 12.4339,
+        "severity": "significant"
+      },
+      {
+        "feature": "vwap_72",
+        "psi": 12.4254,
+        "severity": "significant"
+      },
+      {
+        "feature": "vwap_24",
+        "psi": 12.4121,
+        "severity": "significant"
+      }
+    ],
+    "BTCUSDT/4h": [
+      {
+        "feature": "realized_volatility_100",
+        "psi": 12.4339,
+        "severity": "significant"
+      },
+      {
+        "feature": "vwap_72",
+        "psi": 12.4254,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_50",
+        "psi": 12.3631,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_50",
+        "psi": 12.3631,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_120",
+        "psi": 12.3419,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_200",
+        "psi": 12.2938,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_200",
+        "psi": 12.2938,
+        "severity": "significant"
+      },
+      {
+        "feature": "atr_pct",
+        "psi": 10.7538,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_21",
+        "psi": 10.6714,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_lower",
+        "psi": 10.6381,
+        "severity": "significant"
+      }
+    ],
+    "ETHUSDT/1h": [
+      {
+        "feature": "ema_200",
+        "psi": 12.4498,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_200",
+        "psi": 12.4498,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_120",
+        "psi": 12.4443,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_50",
+        "psi": 12.4418,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_50",
+        "psi": 12.4418,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_upper",
+        "psi": 12.4411,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_lower",
+        "psi": 12.4411,
+        "severity": "significant"
+      },
+      {
+        "feature": "bb_mid",
+        "psi": 12.4411,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_21",
+        "psi": 12.4339,
+        "severity": "significant"
+      },
+      {
+        "feature": "obv",
+        "psi": 12.4339,
+        "severity": "significant"
+      }
+    ],
+    "ETHUSDT/4h": [
+      {
+        "feature": "realized_volatility_50",
+        "psi": 12.4339,
+        "severity": "significant"
+      },
+      {
+        "feature": "realized_volatility_100",
+        "psi": 12.4339,
+        "severity": "significant"
+      },
+      {
+        "feature": "sma_200",
+        "psi": 12.2938,
+        "severity": "significant"
+      },
+      {
+        "feature": "atr",
+        "psi": 10.9166,
+        "severity": "significant"
+      },
+      {
+        "feature": "atr_pct",
+        "psi": 10.5587,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_stack_score",
+        "psi": 10.3183,
+        "severity": "significant"
+      },
+      {
+        "feature": "macd_signal",
+        "psi": 9.1966,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_200",
+        "psi": 7.804,
+        "severity": "significant"
+      },
+      {
+        "feature": "ema_120",
+        "psi": 7.5547,
+        "severity": "significant"
+      },
+      {
+        "feature": "realized_volatility_20",
+        "psi": 7.4741,
+        "severity": "significant"
+      }
+    ]
+  },
+  "new_bars": {
+    "BTCUSDT/1h": {
+      "rows_available": 500,
+      "retrain_bar_threshold": 500
+    },
+    "BTCUSDT/4h": {
+      "rows_available": 500,
+      "retrain_bar_threshold": 150
+    },
+    "ETHUSDT/1h": {
+      "rows_available": 500,
+      "retrain_bar_threshold": 500
+    },
+    "ETHUSDT/4h": {
+      "rows_available": 500,
+      "retrain_bar_threshold": 150
+    }
+  }
+}

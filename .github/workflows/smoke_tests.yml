@@ -1,0 +1,49 @@
+name: smoke-tests
+
+# Runs the pytest suite on PRs and pushes. Uses tiny committed sample data only
+# (no large data, no network training). TensorFlow is needed for a few tests.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency:
+  group: smoke-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install full requirements (incl. TensorFlow CPU)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run test suite
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "3"
+        run: |
+          pytest tests/ -q
+
+      - name: Guard — no large data tracked by git
+        run: |
+          # Fail if any data/ parquet or zip is tracked (must be gitignored).
+          if git ls-files 'data/**/*.parquet' 'data/**/*.zip' | grep -q .; then
+            echo "ERROR: large data files are tracked by git!"
+            git ls-files 'data/**/*.parquet' 'data/**/*.zip'
+            exit 1
+          fi
+          echo "OK: no large data tracked."

@@ -1,0 +1,115 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Claude Code local artifacts
+.claude/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# TensorFlow / training
+*.h5
+*.keras
+*.tflite
+*.pb
+*.ckpt
+*.ckpt.*
+checkpoints/
+runs/
+tensorboard/
+
+# Joblib / pickled artifacts
+*.joblib
+*.pkl
+*.pickle
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data — large files must NOT be committed (per spec)
+data/raw/
+data/interim/
+data/processed/
+data/features/
+data/labels/
+data/manual/
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/features/.gitkeep
+!data/labels/.gitkeep
+!data/manual/.gitkeep
+!data/samples/
+
+# Artifacts (training runs, datasets, encoders are large/local — never commit)
+artifacts/runs/
+artifacts/datasets/
+artifacts/pretrained_encoders/
+!artifacts/runs/.gitkeep
+!artifacts/datasets/.gitkeep
+!artifacts/pretrained_encoders/.gitkeep
+# ...but DO keep the small production pointer.
+!artifacts/production/
+!artifacts/production/current_model.json
+
+# NumPy archives (windowed datasets)
+*.npz
+
+# Reports — keep structure, ignore generated content
+reports/drift/*
+reports/shadow/*
+reports/training_plots/*
+reports/training_logs/*
+reports/*.md
+reports/*.json
+reports/*.csv
+reports/*.html
+!reports/.gitkeep
+!reports/drift/.gitkeep
+!reports/shadow/.gitkeep
+!reports/training_plots/.gitkeep
+!reports/training_logs/.gitkeep
+
+# Kaggle / FRED / Etherscan keys
+kaggle.json
+.kaggle/
+
+# OS
+*.tmp
+*.bak
+~*

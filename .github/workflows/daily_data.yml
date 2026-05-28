@@ -1,0 +1,78 @@
+name: daily-data
+
+# Lightweight daily delta + validation + retrain check.
+# NEVER trains a model. Commits only metadata/reports (never large data).
+
+on:
+  schedule:
+    - cron: "17 1 * * *"   # 01:17 UTC daily
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-data
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install minimal ingestion deps (NO TensorFlow)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-ci.txt
+
+      - name: Run daily delta update (resilient — never hard-fails)
+        run: |
+          python -m src.ingest.daily_update --symbols BTCUSDT ETHUSDT --timeframes 1h 4h 1d || true
+
+      - name: Data validation
+        run: |
+          python -m src.utils.validation_cli || true
+
+      - name: Retrain / staleness check (report only — no training)
+        run: |
+          python -m src.models.retrain_check --symbols BTCUSDT ETHUSDT --timeframes 1h 4h 1d || true
+
+      - name: Push dataset to Kaggle (only if secrets present)
+        if: ${{ secrets.KAGGLE_USERNAME != '' && secrets.KAGGLE_KEY != '' }}
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          echo "Kaggle secrets present — pushing dataset metadata."
+          # Placeholder: a real push would use `kaggle datasets version`.
+          # Large data is NOT committed to git; Kaggle is the dataset store.
+          echo "(kaggle push step is a stub until kaggle_dataset_slug is configured)"
+
+      - name: Note when Kaggle skipped
+        if: ${{ secrets.KAGGLE_USERNAME == '' || secrets.KAGGLE_KEY == '' }}
+        run: echo "Kaggle secrets not set — skipping dataset push (local validation still ran)."
+
+      - name: Commit metadata + reports only (never large data)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage ONLY small metadata/reports — .gitignore already blocks data/.
+          git add metadata/*.json metadata/*.yaml reports/*.md reports/*.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no metadata/report changes to commit"
+          else
+            git commit -m "chore(daily): refresh metadata + retrain status [skip ci]"
+            git push
+          fi
