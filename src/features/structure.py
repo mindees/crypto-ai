@@ -161,10 +161,10 @@ def smc_proxy_features(df: pd.DataFrame) -> pd.DataFrame:
     fwd3_ret = close.pct_change(3)
     bearish_bar = (close < open_)
     raw_ob_up = (bearish_bar & (fwd3_ret > 0.02))
-    ob_up_proxy = raw_ob_up.shift(3).fillna(False).astype("float64")
+    ob_up_proxy = raw_ob_up.shift(3, fill_value=False).astype("float64")
     bullish_bar = (close > open_)
     raw_ob_dn = (bullish_bar & (fwd3_ret < -0.02))
-    ob_down_proxy = raw_ob_dn.shift(3).fillna(False).astype("float64")
+    ob_down_proxy = raw_ob_dn.shift(3, fill_value=False).astype("float64")
 
     # CHoCH (Change of Character) proxy: a swing low (5-window) where the
     # subsequent close breaks the prior swing high. Causal via shift.

@@ -49,8 +49,9 @@ logs/
 *.ckpt
 *.ckpt.*
 checkpoints/
-runs/
 tensorboard/
+# NB: do NOT add a bare `runs/` here — it would also match artifacts/runs/ and
+# block its .gitkeep. Training runs are handled by `artifacts/runs/*` below.
 
 # Joblib / pickled artifacts
 *.joblib
@@ -61,28 +62,24 @@ tensorboard/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Data — large files must NOT be committed (per spec)
-data/raw/
-data/interim/
-data/processed/
-data/features/
-data/labels/
-data/manual/
-!data/raw/.gitkeep
-!data/interim/.gitkeep
-!data/processed/.gitkeep
-!data/features/.gitkeep
-!data/labels/.gitkeep
-!data/manual/.gitkeep
-!data/samples/
+# Data — large files must NOT be committed (per spec).
+# NB: ignore directory CONTENTS (trailing /*), not the directory itself, so the
+# .gitkeep placeholders can be re-included (git cannot re-include a file whose
+# parent directory is wholly excluded).
+data/raw/*
+data/interim/*
+data/processed/*
+data/features/*
+data/labels/*
+data/manual/*
+!data/**/.gitkeep
+# data/samples/ is small committed test fixtures — keep all of it.
 
 # Artifacts (training runs, datasets, encoders are large/local — never commit)
-artifacts/runs/
-artifacts/datasets/
-artifacts/pretrained_encoders/
-!artifacts/runs/.gitkeep
-!artifacts/datasets/.gitkeep
-!artifacts/pretrained_encoders/.gitkeep
+artifacts/runs/*
+artifacts/datasets/*
+artifacts/pretrained_encoders/*
+!artifacts/**/.gitkeep
 # ...but DO keep the small production pointer.
 !artifacts/production/
 !artifacts/production/current_model.json

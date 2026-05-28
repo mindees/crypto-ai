@@ -22,6 +22,10 @@ jobs:
     env:
       FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
       ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+      # Mapped to env so step `if:` can reference them (the `secrets` context is
+      # NOT available in step-level `if:` conditions).
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,10 +54,7 @@ jobs:
           python -m src.models.retrain_check --symbols BTCUSDT ETHUSDT --timeframes 1h 4h 1d || true
 
       - name: Push dataset to Kaggle (only if secrets present)
-        if: ${{ secrets.KAGGLE_USERNAME != '' && secrets.KAGGLE_KEY != '' }}
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        if: ${{ env.KAGGLE_USERNAME != '' && env.KAGGLE_KEY != '' }}
         run: |
           echo "Kaggle secrets present — pushing dataset metadata."
           # Placeholder: a real push would use `kaggle datasets version`.
@@ -61,7 +62,7 @@ jobs:
           echo "(kaggle push step is a stub until kaggle_dataset_slug is configured)"
 
       - name: Note when Kaggle skipped
-        if: ${{ secrets.KAGGLE_USERNAME == '' || secrets.KAGGLE_KEY == '' }}
+        if: ${{ env.KAGGLE_USERNAME == '' || env.KAGGLE_KEY == '' }}
         run: echo "Kaggle secrets not set — skipping dataset push (local validation still ran)."
 
       - name: Commit metadata + reports only (never large data)
