@@ -60,14 +60,43 @@ CONFIG_BLOCK = '''\
 ASSETS       = ["BTCUSDT", "ETHUSDT"]
 TIMEFRAMES   = ["1h", "4h"]           # train_default per configs/config.yaml
 MARKET       = "spot"
-SAMPLE       = False                   # True = last 500 bars (smoke); False = full window
+START_YEAR   = 2022                    # bound ingestion so the run stays Kaggle/Colab-sized; None = full history
+SAMPLE       = False                   # True = last 500 bars (≈2-min smoke); False = full window
 PHASE1_EPOCHS = 10
 PHASE2_EPOCHS = 25
 BATCH_SIZE    = 256
 RESUME        = True                   # resume from latest checkpoint if present
 print({"assets": ASSETS, "timeframes": TIMEFRAMES, "market": MARKET,
-       "sample": SAMPLE, "phase1": PHASE1_EPOCHS, "phase2": PHASE2_EPOCHS,
-       "batch_size": BATCH_SIZE, "resume": RESUME})
+       "start_year": START_YEAR, "sample": SAMPLE, "phase1": PHASE1_EPOCHS,
+       "phase2": PHASE2_EPOCHS, "batch_size": BATCH_SIZE, "resume": RESUME})
+'''
+
+INGEST = '''\
+# --- ingest free data (Internet required) ---
+# OHLCV bounded by START_YEAR to keep the run quick; set START_YEAR=None above
+# for the deepest verified history. Context adapters are resilient (non-fatal).
+import subprocess, sys
+bin_cmd = [sys.executable, "-m", "src.ingest.binance_bulk",
+           "--symbols", *ASSETS, "--market-types", MARKET, "--timeframes", *TIMEFRAMES]
+if START_YEAR:
+    bin_cmd += ["--start-year", str(START_YEAR)]
+print(" ".join(bin_cmd))
+subprocess.run(bin_cmd, check=True)
+subprocess.run([sys.executable, "-m", "src.ingest.sentiment"], check=False)
+subprocess.run([sys.executable, "-m", "src.ingest.coingecko"], check=False)
+subprocess.run([sys.executable, "-m", "src.ingest.onchain", "--btc-only"], check=False)
+subprocess.run([sys.executable, "-m", "src.ingest.derivatives", "--symbols", *ASSETS], check=False)
+'''
+
+FEATURES_LABELS = '''\
+# --- build causal features + labels ---
+import subprocess, sys
+subprocess.run([sys.executable, "-m", "src.features.build_matrix",
+                "--symbols", *ASSETS, "--timeframes", *TIMEFRAMES,
+                "--market", MARKET, "--sample", "true" if SAMPLE else "false"], check=True)
+subprocess.run([sys.executable, "-m", "src.labels.labeling",
+                "--symbols", *ASSETS, "--timeframes", *TIMEFRAMES,
+                "--market", MARKET, "--sample", "true" if SAMPLE else "false"], check=True)
 '''
 
 RESUME_CELL = '''\
@@ -150,15 +179,21 @@ subprocess.run(cmd, check=True)
 
 KAGGLE_SETUP = '''\
 # --- Kaggle setup ---
-# Kaggle gives 2x T4 when "GPU T4 x2" accelerator is selected. The project
-# auto-detects and uses MirroredStrategy. Add this repo as a Kaggle dataset or
-# clone it, then:
+# REQUIRES the notebook's "Internet" toggle = ON (Settings → Internet) so we can
+# git-clone the public repo and pip-install. Select "GPU T4 x2" for dual-T4 →
+# the project auto-detects and uses MirroredStrategy.
 import os, sys, subprocess
-# If the repo isn't already present, clone it (replace with your fork URL):
-# subprocess.run(["git", "clone", "https://github.com/mindees/crypto-ai.git"], check=False)
-# os.chdir("crypto-ai")
+
+REPO_URL = "https://github.com/mindees/crypto-ai.git"
+BASE = "/kaggle/working" if os.path.isdir("/kaggle/working") else os.getcwd()
+REPO_DIR = os.path.join(BASE, "crypto-ai")
+if not os.path.isdir(REPO_DIR):
+    subprocess.run(["git", "clone", "--depth", "1", REPO_URL, REPO_DIR], check=True)
+os.chdir(REPO_DIR)
+sys.path.insert(0, os.getcwd())   # make `import src...` work in this kernel
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"], check=False)
 print("cwd:", os.getcwd())
+assert os.path.isdir("src"), "repo not cloned correctly — is Internet enabled?"
 '''
 
 KAGGLE_PULL_DATASET = '''\
@@ -203,11 +238,17 @@ except Exception as e:
     DRIVE_DIR = None
     print("not on Colab / Drive not mounted:", e)
 
-# Clone + install (replace with your fork URL):
-# subprocess.run(["git", "clone", "https://github.com/mindees/crypto-ai.git"], check=False)
-# os.chdir("crypto-ai")
+# Clone the public repo + install requirements.
+REPO_URL = "https://github.com/mindees/crypto-ai.git"
+BASE = "/content" if os.path.isdir("/content") else os.getcwd()
+REPO_DIR = os.path.join(BASE, "crypto-ai")
+if not os.path.isdir(REPO_DIR):
+    subprocess.run(["git", "clone", "--depth", "1", REPO_URL, REPO_DIR], check=True)
+os.chdir(REPO_DIR)
+sys.path.insert(0, os.getcwd())   # make `import src...` work in this kernel
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"], check=False)
 print("cwd:", os.getcwd())
+assert os.path.isdir("src"), "repo not cloned correctly — check connectivity."
 '''
 
 COLAB_CHECKPOINT = '''\
@@ -245,9 +286,11 @@ def build_standard(platform: str) -> dict:
         md("## 3. GPU / environment check"), code(GPU_CHECK),
         md("## 4. Configuration"), code(CONFIG_BLOCK),
         md("## 5. Resume support"), code(RESUME_CELL),
-        md("## 6. Build dataset"), code(BUILD_DATASET),
-        md("## 7. Train"), code(standard_train_cell(note)),
-        md("## 8. Evaluate + backtest + register"),
+        md("## 6. Ingest free data"), code(INGEST),
+        md("## 7. Build features + labels"), code(FEATURES_LABELS),
+        md("## 8. Build dataset"), code(BUILD_DATASET),
+        md("## 9. Train"), code(standard_train_cell(note)),
+        md("## 10. Evaluate + backtest + register"),
         code(EVALUATE_BACKTEST), code(REGISTER),
         *export,
     ]
@@ -279,6 +322,10 @@ def build_plantguard(platform: str) -> dict:
         md("## 1. Imports & GPU check"), code(GPU_CHECK),
         md("## 2. Configuration"), code(CONFIG_BLOCK),
         md("## 3. Resume support"), code(RESUME_CELL),
+        md("## 3b. Ingest free data + build features/labels\n"
+           "Internet required. OHLCV is bounded by START_YEAR; context adapters "
+           "(sentiment/coingecko/onchain/derivatives) are resilient."),
+        code(INGEST), code(FEATURES_LABELS),
         md("## 4. Dataset validation + build\n"
            "Builds windows, prints per-combo row counts, feature counts, and "
            "the train/val/test split sizes."),
