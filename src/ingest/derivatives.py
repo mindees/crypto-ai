@@ -74,10 +74,19 @@ FUNDING_LIMITATION = (
 # Low-level fetch helpers
 # ---------------------------------------------------------------------------
 
+_LAST_HTTP_ERROR: int | None = None
+
+
 def _get_json(url: str) -> list | dict | None:
+    global _LAST_HTTP_ERROR
+    _LAST_HTTP_ERROR = None
     try:
         raw = _http.get_bytes(url)
-    except (urllib.error.HTTPError, OSError) as exc:
+    except urllib.error.HTTPError as exc:
+        _LAST_HTTP_ERROR = exc.code
+        _log.warning("GET %s failed: HTTP %s", url, exc.code)
+        return None
+    except OSError as exc:
         _log.warning("GET %s failed: %s", url, exc)
         return None
     try:
@@ -85,6 +94,19 @@ def _get_json(url: str) -> list | dict | None:
     except json.JSONDecodeError as exc:
         _log.warning("GET %s returned non-JSON: %s", url, exc)
         return None
+
+
+def _failure_reason(default: str) -> str:
+    """Compose an honest 'unavailable' reason, calling out geo-blocking (451)."""
+    if _LAST_HTTP_ERROR == 451:
+        return (
+            "Binance futures API geo-blocked (HTTP 451) from this region/IP — "
+            "common on Kaggle/Colab (US cloud). Run ingestion from an unblocked "
+            "region and attach the parquet as a dataset to include derivatives features."
+        )
+    if _LAST_HTTP_ERROR:
+        return f"{default} (HTTP {_LAST_HTTP_ERROR})"
+    return default
 
 
 # ---------------------------------------------------------------------------
@@ -113,7 +135,7 @@ def fetch_funding_rate(symbol: str, *, start_ms: int | None = None) -> AdapterRe
         )
         payload = _get_json(url)
         if payload is None:
-            res.reason = f"network failure after {page_count - 1} pages"
+            res.reason = _failure_reason(f"network failure after {page_count - 1} pages")
             return res
         if not isinstance(payload, list):
             res.reason = f"unexpected payload shape: {type(payload).__name__}"
@@ -170,7 +192,7 @@ def _fetch_recent_series(
     url = f"{FAPI_BASE}{endpoint_path}?{qs}"
     payload = _get_json(url)
     if payload is None:
-        res.reason = "network failure"
+        res.reason = _failure_reason("network failure")
         return res
     if not isinstance(payload, list) or not payload:
         res.reason = "empty payload"
