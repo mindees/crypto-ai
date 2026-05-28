@@ -463,7 +463,24 @@ python -m src.models.ab_compare  --candidate latest --sample true
 | **Local** | CPU smoke + serving | Windows + TF ≥ 2.11 is CPU-only (use WSL2 for GPU). |
 
 All four notebooks import the real `src/` modules (no duplicated logic) and support **resume**
-from existing checkpoints.
+from existing checkpoints. They are **self-contained**: each clones this repo, installs only the
+missing extras, ingests free data, builds features/labels, then trains.
+
+### Running on Kaggle
+
+1. Create a notebook and upload/import `notebooks/kaggle_train.ipynb` (or the PlantGuard one).
+2. In the right-hand **Settings**: **Internet → On** (needed to clone + ingest) and
+   **Accelerator → GPU T4 x2** (auto-detected → `MirroredStrategy`).
+3. **Run All.** Defaults bound ingestion with `START_YEAR=2022`; set `SAMPLE=True` for a ~2-min smoke.
+
+> The notebooks install only `requirements-notebook.txt` (ccxt, fredapi, pandas-ta-classic,
+> yfinance) and **reuse Kaggle's GPU-matched TensorFlow** — installing the fully-pinned
+> `requirements.txt` there would overwrite the host TF and can break GPU detection.
+
+### Running on Colab
+
+Open `notebooks/colab_train.ipynb`, set **Runtime → T4 GPU**, Run All. Mount Drive (first cell)
+to persist checkpoints across disconnects.
 
 **Workflows** (`.github/workflows/`):
 - `daily_data.yml` — daily delta → validation → retrain check → conditional Kaggle push → commits **only metadata/reports** (large data is never committed).
